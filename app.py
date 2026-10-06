@@ -1,89 +1,112 @@
+```python
 import os
-from datetime import datetime, date
 import calendar
+from datetime import datetime, date
 
 import streamlit as st
 from groq import Groq
 
 
-# ---------------------------------------------------------
-# Page Configuration
-# ---------------------------------------------------------
+# =========================================================
+# PAGE CONFIGURATION
+# =========================================================
 st.set_page_config(
     page_title="Age Calculator",
     page_icon="🎂",
-    layout="centered"
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
 
-# ---------------------------------------------------------
-# Custom CSS
-# ---------------------------------------------------------
-st.markdown("""
-<style>
-    .main {
-        padding-top: 2rem;
-    }
+# =========================================================
+# CUSTOM CSS
+# =========================================================
+st.markdown(
+    """
+    <style>
+        .main {
+            padding-top: 2rem;
+        }
 
-    .title {
-        text-align: center;
-        font-size: 42px;
-        font-weight: 700;
-        margin-bottom: 5px;
-    }
+        .title {
+            text-align: center;
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
 
-    .subtitle {
-        text-align: center;
-        font-size: 18px;
-        color: #777;
-        margin-bottom: 30px;
-    }
+        .subtitle {
+            text-align: center;
+            font-size: 18px;
+            color: #777;
+            margin-bottom: 30px;
+        }
 
-    .age-card {
-        padding: 22px;
-        border-radius: 15px;
-        text-align: center;
-        margin-bottom: 15px;
-        border: 1px solid rgba(128,128,128,0.2);
-    }
+        .age-card {
+            padding: 22px;
+            border-radius: 15px;
+            text-align: center;
+            margin-bottom: 20px;
+            border: 1px solid rgba(128, 128, 128, 0.25);
+        }
 
-    .age-number {
-        font-size: 32px;
-        font-weight: 700;
-    }
+        .age-number {
+            font-size: 32px;
+            font-weight: 700;
+        }
 
-    .age-label {
-        font-size: 14px;
-        color: #777;
-    }
+        .age-label {
+            font-size: 14px;
+            color: #777;
+            margin-top: 5px;
+        }
 
-    .footer {
-        text-align: center;
-        color: #888;
-        font-size: 13px;
-        margin-top: 40px;
-    }
-</style>
-""", unsafe_allow_html=True)
+        .footer {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-top: 40px;
+            padding-bottom: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .title {
+                font-size: 32px;
+            }
+
+            .subtitle {
+                font-size: 16px;
+            }
+
+            .age-number {
+                font-size: 24px;
+            }
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 
-# ---------------------------------------------------------
-# Header
-# ---------------------------------------------------------
+# =========================================================
+# HEADER
+# =========================================================
 st.markdown(
     '<div class="title">🎂 Age Calculator</div>',
     unsafe_allow_html=True
 )
 
 st.markdown(
-    '<div class="subtitle">Calculate your exact age in years, months, days, hours, minutes and seconds.</div>',
+    '<div class="subtitle">'
+    'Calculate your exact age in years, months, days, hours, minutes and seconds.'
+    '</div>',
     unsafe_allow_html=True
 )
 
 
-# ---------------------------------------------------------
-# Date & Time Input
-# ---------------------------------------------------------
+# =========================================================
+# DATE OF BIRTH
+# =========================================================
 st.subheader("📅 Enter Your Date of Birth")
 
 dob = st.date_input(
@@ -93,6 +116,10 @@ dob = st.date_input(
     value=date(2000, 1, 1)
 )
 
+
+# =========================================================
+# TIME OF BIRTH
+# =========================================================
 st.subheader("⏰ Time of Birth")
 
 birth_time = st.time_input(
@@ -101,9 +128,9 @@ birth_time = st.time_input(
 )
 
 
-# ---------------------------------------------------------
-# Calculate Age
-# ---------------------------------------------------------
+# =========================================================
+# AGE CALCULATION FUNCTION
+# =========================================================
 def calculate_age(birth_datetime, current_datetime):
 
     if birth_datetime > current_datetime:
@@ -132,14 +159,17 @@ def calculate_age(birth_datetime, current_datetime):
             previous_month = 12
             previous_year -= 1
 
-        days += calendar.monthrange(previous_year, previous_month)[1]
+        days += calendar.monthrange(
+            previous_year,
+            previous_month
+        )[1]
 
     # Borrow months from previous year
     if months < 0:
         years -= 1
         months += 12
 
-    # Calculate total time difference
+    # Total elapsed time
     total_seconds = int(
         (current_datetime - birth_datetime).total_seconds()
     )
@@ -159,32 +189,57 @@ def calculate_age(birth_datetime, current_datetime):
     }
 
 
-# ---------------------------------------------------------
-# Calculate Button
-# ---------------------------------------------------------
-if st.button("🔢 Calculate My Age", use_container_width=True):
+# =========================================================
+# CALCULATE BUTTON
+# =========================================================
+if st.button(
+    "🔢 Calculate My Age",
+    use_container_width=True
+):
 
-    birth_datetime = datetime.combine(dob, birth_time)
+    birth_datetime = datetime.combine(
+        dob,
+        birth_time
+    )
+
     current_datetime = datetime.now()
 
-    age = calculate_age(birth_datetime, current_datetime)
+    age = calculate_age(
+        birth_datetime,
+        current_datetime
+    )
 
+    # -----------------------------------------------------
+    # FUTURE DATE CHECK
+    # -----------------------------------------------------
     if age is None:
-        st.error("Date of birth cannot be in the future.")
+
+        st.error(
+            "❌ Date of birth cannot be in the future."
+        )
 
     else:
 
-        st.success("Your exact age has been calculated!")
+        st.success(
+            "✅ Your exact age has been calculated!"
+        )
 
-        st.markdown("### 🎯 Your Exact Age")
+        # -------------------------------------------------
+        # MAIN AGE
+        # -------------------------------------------------
+        st.markdown(
+            "### 🎯 Your Exact Age"
+        )
 
-        # Main age
         st.markdown(
             f"""
             <div class="age-card">
                 <div class="age-number">
-                    {age['years']} Years, {age['months']} Months, {age['days']} Days
+                    {age['years']} Years,
+                    {age['months']} Months,
+                    {age['days']} Days
                 </div>
+
                 <div class="age-label">
                     Your calendar age
                 </div>
@@ -193,41 +248,69 @@ if st.button("🔢 Calculate My Age", use_container_width=True):
             unsafe_allow_html=True
         )
 
-        # Metrics
+        # -------------------------------------------------
+        # AGE METRICS
+        # -------------------------------------------------
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric("Years", f"{age['years']:,}")
+            st.metric(
+                "Years",
+                f"{age['years']:,}"
+            )
 
         with col2:
-            st.metric("Months", f"{age['months']:,}")
+            st.metric(
+                "Months",
+                f"{age['months']:,}"
+            )
 
         with col3:
-            st.metric("Days", f"{age['days']:,}")
+            st.metric(
+                "Days",
+                f"{age['days']:,}"
+            )
 
-        st.markdown("### ⏱️ Total Time Lived")
+        # -------------------------------------------------
+        # TOTAL TIME
+        # -------------------------------------------------
+        st.markdown(
+            "### ⏱️ Total Time Lived"
+        )
 
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            st.metric("Total Days", f"{age['total_days']:,}")
+            st.metric(
+                "Total Days",
+                f"{age['total_days']:,}"
+            )
 
         with col2:
-            st.metric("Total Hours", f"{age['total_hours']:,}")
+            st.metric(
+                "Total Hours",
+                f"{age['total_hours']:,}"
+            )
 
         with col3:
-            st.metric("Total Minutes", f"{age['total_minutes']:,}")
+            st.metric(
+                "Total Minutes",
+                f"{age['total_minutes']:,}"
+            )
 
         st.metric(
             "Total Seconds",
             f"{age['total_seconds']:,}"
         )
 
-        # -------------------------------------------------
-        # Groq AI Section
-        # -------------------------------------------------
+        # =================================================
+        # GROQ AI
+        # =================================================
         st.markdown("---")
-        st.subheader("🤖 Ask AI About Your Age")
+
+        st.subheader(
+            "🤖 Ask AI About Your Age"
+        )
 
         question = st.text_input(
             "Ask something about your age",
@@ -236,41 +319,63 @@ if st.button("🔢 Calculate My Age", use_container_width=True):
 
         if question:
 
-            # First check Streamlit Secrets
+            # -------------------------------------------------
+            # GET GROQ API KEY
+            # -------------------------------------------------
             groq_api_key = None
 
+            # Streamlit Cloud Secrets
             try:
-                groq_api_key = st.secrets.get("GROQ_API_KEY")
+                groq_api_key = st.secrets.get(
+                    "GROQ_API_KEY"
+                )
             except Exception:
-                pass
+                groq_api_key = None
 
-            # Then check environment variable
+            # Local environment variable fallback
             if not groq_api_key:
-                groq_api_key = os.getenv("GROQ_API_KEY")
+                groq_api_key = os.getenv(
+                    "GROQ_API_KEY"
+                )
 
+            # -------------------------------------------------
+            # API KEY NOT FOUND
+            # -------------------------------------------------
             if not groq_api_key:
 
                 st.warning(
-                    "Groq API key is not configured. "
-                    "Add GROQ_API_KEY to Streamlit Secrets."
+                    "⚠️ Groq API key is not configured."
+                )
+
+                st.info(
+                    "Add GROQ_API_KEY to your Streamlit "
+                    "Secrets to enable the AI assistant."
                 )
 
             else:
 
                 try:
 
-                    client = Groq(api_key=groq_api_key)
+                    # -------------------------------------------------
+                    # CREATE GROQ CLIENT
+                    # -------------------------------------------------
+                    client = Groq(
+                        api_key=groq_api_key
+                    )
 
+                    # -------------------------------------------------
+                    # AI PROMPT
+                    # -------------------------------------------------
                     prompt = f"""
 You are an age calculation assistant.
 
-The user's date of birth is:
+User's date of birth:
 {birth_datetime.strftime("%d %B %Y %H:%M:%S")}
 
-The current date and time is:
+Current date and time:
 {current_datetime.strftime("%d %B %Y %H:%M:%S")}
 
-Calculated age:
+Calculated calendar age:
 {age['years']} years,
 {age['months']} months,
 {age['days']} days.
@@ -290,9 +395,14 @@ Total seconds lived:
 User's question:
 {question}
 
-Answer clearly and briefly.
+Answer clearly, accurately and briefly.
+If the question can be answered directly using the
+provided age information, calculate the answer from it.
 """
 
+                    # -------------------------------------------------
+                    # GROQ REQUEST
+                    # -------------------------------------------------
                     response = client.chat.completions.create(
                         model="llama-3.1-8b-instant",
                         messages=[
@@ -305,21 +415,36 @@ Answer clearly and briefly.
                         max_tokens=500
                     )
 
-                    answer = response.choices[0].message.content
+                    answer = (
+                        response
+                        .choices[0]
+                        .message
+                        .content
+                    )
 
-                    st.markdown("### 🤖 AI Answer")
+                    # -------------------------------------------------
+                    # DISPLAY AI ANSWER
+                    # -------------------------------------------------
+                    st.markdown(
+                        "### 🤖 AI Answer"
+                    )
+
                     st.write(answer)
 
                 except Exception as e:
 
                     st.error(
-                        f"Unable to connect to Groq: {str(e)}"
+                        "❌ Unable to connect to Groq."
+                    )
+
+                    st.caption(
+                        f"Error: {str(e)}"
                     )
 
 
-# ---------------------------------------------------------
-# Footer
-# ---------------------------------------------------------
+# =========================================================
+# FOOTER
+# =========================================================
 st.markdown(
     """
     <div class="footer">
@@ -328,3 +453,4 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+```
